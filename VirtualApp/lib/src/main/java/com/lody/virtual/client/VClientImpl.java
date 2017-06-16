@@ -25,6 +25,8 @@ import android.os.RemoteException;
 import android.os.StrictMode;
 import android.util.Log;
 
+import com.google.gson.Gson;
+import com.google.gson.stream.JsonReader;
 import com.lody.virtual.client.core.CrashHandler;
 import com.lody.virtual.client.core.InvocationStubManager;
 import com.lody.virtual.client.core.VirtualCore;
@@ -49,6 +51,11 @@ import com.lody.virtual.remote.PendingResultData;
 import com.taobao.android.dex.interpret.ARTUtils;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -92,6 +99,8 @@ public final class VClientImpl extends IVClient.Stub {
     private AppBindData mBoundApplication;
     private Application mInitialApplication;
     private CrashHandler crashHandler;
+
+    private static final String LOG_TAG = "VirtualApp";
 
     public static VClientImpl get() {
         return gClient;
@@ -194,6 +203,28 @@ public final class VClientImpl extends IVClient.Stub {
         }
     }
 
+    private void InjectLibForStartPeriod(String packageName)
+    {
+        Log.d(LOG_TAG, "[start]Package Name:" + packageName);
+        String libPath = getLibPathFromFile(VIRTUALAPP_PATH, "start", packageName);
+        if (libPath != null)
+        {
+            Log.d(LOG_TAG,"loadLibrary:"+libPath);
+            System.load(libPath);
+        }
+    }
+
+    private void InjectLibForMiddlePeriod(String packageName)
+    {
+        Log.d(LOG_TAG, "[middle]Package Name:" + packageName);
+        String libPath = getLibPathFromFile(VIRTUALAPP_PATH, "middle", packageName);
+        if (libPath != null)
+        {
+            Log.d(LOG_TAG,"loadLibrary:"+libPath);
+            System.load(libPath);
+        }
+    }
+
     private void bindApplicationNoCheck(String packageName, String processName, ConditionVariable lock) {
         mTempLock = lock;
         try {
@@ -243,6 +274,10 @@ public final class VClientImpl extends IVClient.Stub {
         if (StubManifest.ENABLE_IO_REDIRECT) {
             startIOUniformer();
         }
+
+        // Start Period
+        InjectLibForStartPeriod(packageName);
+
         NativeEngine.hookNative();
         Object mainThread = VirtualCore.mainThread();
         NativeEngine.startDexOverride();
@@ -308,6 +343,8 @@ public final class VClientImpl extends IVClient.Stub {
                                 + ": " + e.toString(), e);
             }
         }
+        // Middle Period
+        InjectLibForMiddlePeriod(packageName);
         VActivityManager.get().appDoneExecuting();
     }
 
@@ -584,6 +621,81 @@ public final class VClientImpl extends IVClient.Stub {
         return "process : " + VirtualRuntime.getProcessName() + "\n" +
                 "initialPkg : " + VirtualRuntime.getInitialPackageName() + "\n" +
                 "vuid : " + vuid;
+    }
+
+    private String _getLibPath(VirtualAppConfig config, String loadPeriod,String packageName)
+    {
+        List<VirtualAppConfig.VPItem> items = null;
+        if (loadPeriod == "start") items = config.getStart();
+        else if (loadPeriod == "middle") items = config.getMiddle();
+        if(items != null)
+        {
+            for(VirtualAppConfig.VPItem item : items)
+            {
+                if(item.getPackageName().equals(packageName))
+                {
+                    return item.getLibPath();
+                }
+            }
+        }
+        return null;
+    }
+
+    private static final String VIRTUALAPP_PATH = "/data/local/tmp/VirtualApp.json";
+    private VirtualAppConfig virtualAppConfig = null;
+    private String getLibPathFromFile(String jsonPath, String loadPeriod,String packageName)
+    {
+        try {
+            if (virtualAppConfig == null)
+            {
+                Gson gson = new Gson();
+                virtualAppConfig = gson.fromJson(new JsonReader(new FileReader(jsonPath)), VirtualAppConfig.class);
+            }
+            return _getLibPath(virtualAppConfig, loadPeriod,packageName);
+        }catch(FileNotFoundException e)
+        {
+            return null;
+        }
+    }
+
+    private String getLibPathFromAssets(String loadPeriod,String packageName)
+    {
+        /*
+        try {
+            InputStream is = getAssets().open("VirtualApp.json");
+            Gson gson = new Gson();
+            VirtualAppConfig vp = gson.fromJson(new JsonReader(new InputStreamReader(is, "UTF-8")), VirtualAppConfig.class);
+            return _getLibPath(vp, loadPeriod,packageName);
+        }catch (IOException e)
+        {
+            e.printStackTrace();
+            return null;
+        }
+        */
+        return null;
+    }
+
+    // JavaBean
+    private class VirtualAppConfig
+    {
+        private class VPItem
+        {
+            private String packageName;
+            private String libPath;
+
+            public String getPackageName(){return packageName;}
+            public void setPackageName(String packageName){this.packageName = packageName;}
+            public String getLibPath(){return libPath;}
+            public void setLibPath(String libPath){this.libPath = libPath;}
+        }
+
+        private List<VPItem> start;
+        private List<VPItem> middle;
+
+        public void setStart(List<VPItem> start){this.start = start;}
+        public List<VPItem> getStart(){return start;}
+        public void setMiddle(List<VPItem> middle){this.middle = middle;}
+        public List<VPItem> getMiddle(){return this.middle;}
     }
 
     private static class RootThreadGroup extends ThreadGroup {
