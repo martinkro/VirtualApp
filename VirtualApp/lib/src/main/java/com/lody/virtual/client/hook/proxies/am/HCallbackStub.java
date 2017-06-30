@@ -21,6 +21,8 @@ import mirror.android.app.ActivityManagerNative;
 import mirror.android.app.ActivityThread;
 import mirror.android.app.IActivityManager;
 
+import io.virtualapp.lib.utils.LogHelper;
+
 /**
      * @author Lody
      * @see Handler.Callback
@@ -95,6 +97,7 @@ import mirror.android.app.IActivityManager;
         }
 
         private boolean handleLaunchActivity(Message msg) {
+            LogHelper.Debug("HCallbackStub::handleLaunchActivity");
             Object r = msg.obj;
             Intent stubIntent = ActivityThread.ActivityClientRecord.intent.get(r);
             StubActivityRecord saveInstance = new StubActivityRecord(stubIntent);
@@ -110,7 +113,11 @@ import mirror.android.app.IActivityManager;
                 getH().sendMessageAtFrontOfQueue(Message.obtain(msg));
                 return false;
             }
+
+            LogHelper.Debug("intent:" + intent.toString());
+            LogHelper.Debug("activity info:" + info.toString());
             if (!VClientImpl.get().isBound()) {
+                LogHelper.Debug("call bindApplication");
                 VClientImpl.get().bindApplication(info.packageName, info.processName);
                 getH().sendMessageAtFrontOfQueue(Message.obtain(msg));
                 return false;
@@ -120,11 +127,20 @@ import mirror.android.app.IActivityManager;
                     token,
                     false
             );
+
+            LogHelper.Debug("call VAMP::onActivityCreate");
             VActivityManager.get().onActivityCreate(ComponentUtils.toComponentName(info), caller, token, info, intent, ComponentUtils.getTaskAffinity(info), taskId, info.launchMode, info.flags);
             ClassLoader appClassLoader = VClientImpl.get().getClassLoader(info.applicationInfo);
             intent.setExtrasClassLoader(appClassLoader);
+
+            LogHelper.Debug("before intent:" + ActivityThread.ActivityClientRecord.intent.toString());
+            LogHelper.Debug("before activity info:" + ActivityThread.ActivityClientRecord.activityInfo.toString());
+
             ActivityThread.ActivityClientRecord.intent.set(r, intent);
             ActivityThread.ActivityClientRecord.activityInfo.set(r, info);
+
+            LogHelper.Debug("after intent:" + ActivityThread.ActivityClientRecord.intent.toString());
+            LogHelper.Debug("after activity info:" + ActivityThread.ActivityClientRecord.activityInfo.toString());
             return true;
         }
 

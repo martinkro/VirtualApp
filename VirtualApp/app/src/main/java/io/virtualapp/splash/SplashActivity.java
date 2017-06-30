@@ -12,9 +12,11 @@ import io.virtualapp.abs.ui.VUiKit;
 import io.virtualapp.home.FlurryROMCollector;
 import io.virtualapp.home.HomeActivity;
 import jonathanfinerty.once.Once;
+import io.virtualapp.LogHelper;
 
 public class SplashActivity extends VActivity {
 
+    public static final String LOG_TAG = "VirtualApp";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         @SuppressWarnings("unused")
@@ -29,7 +31,9 @@ public class SplashActivity extends VActivity {
                 Once.markDone("collect_flurry");
             }
             long time = System.currentTimeMillis();
+            LogHelper.Debug("waitForEngine start");
             VirtualCore.get().waitForEngine();
+            LogHelper.Debug("waitForEngine end");
             time = System.currentTimeMillis() - time;
             long delta = 1000L - time;
             if (delta > 0) {

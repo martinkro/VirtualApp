@@ -10,6 +10,8 @@ import com.lody.virtual.helper.compat.ContentProviderCompat;
 
 import java.io.Serializable;
 
+import io.virtualapp.lib.utils.LogHelper;
+
 /**
  * @author Lody
  *
@@ -21,6 +23,11 @@ public class ProviderCall {
 	}
 
 	public static Bundle call(String authority, Context context, String method, String arg, Bundle bundle) {
+		LogHelper.Debug("ProviderCall::call");
+		LogHelper.Debug("authortity:" + authority);
+		LogHelper.Debug("method:" + method);
+		LogHelper.Debug("arg:" + arg);
+		LogHelper.Debug("bundle:" + bundle.toString());
 		Uri uri = Uri.parse("content://" + authority);
 		return ContentProviderCompat.call(context, uri, method, arg, bundle);
 	}

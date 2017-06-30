@@ -10,6 +10,7 @@ import com.lody.virtual.helper.compat.BundleCompat;
 import com.lody.virtual.helper.utils.VLog;
 import com.lody.virtual.server.ServiceCache;
 import com.lody.virtual.server.interfaces.IServiceFetcher;
+import io.virtualapp.lib.utils.LogHelper;
 
 /**
  * @author Lody
@@ -49,6 +50,7 @@ public class ServiceManagerNative {
 	}
 
 	public static void ensureServerStarted() {
+		LogHelper.Debug("ServiceManagerNative::ensureServerStarted()");
         new ProviderCall.Builder(VirtualCore.get().getContext(), SERVICE_CP_AUTH).methodName("ensure_created").call();
 	}
 

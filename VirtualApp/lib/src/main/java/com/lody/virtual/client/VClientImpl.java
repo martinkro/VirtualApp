@@ -62,6 +62,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
+import io.virtualapp.lib.utils.LogHelper;
 import mirror.android.app.ActivityThread;
 import mirror.android.app.ActivityThreadNMR1;
 import mirror.android.app.ContextImpl;
@@ -189,8 +190,10 @@ public final class VClientImpl extends IVClient.Stub {
 
     public void bindApplication(final String packageName, final String processName) {
         if (Looper.getMainLooper() == Looper.myLooper()) {
+            LogHelper.Debug("VClientImpl::bindApplication on main  thread");
             bindApplicationNoCheck(packageName, processName, new ConditionVariable());
         } else {
+            LogHelper.Debug("VClientImpl::bindApplication NOT on main  thread");
             final ConditionVariable lock = new ConditionVariable();
             VirtualRuntime.getUIHandler().post(new Runnable() {
                 @Override
@@ -205,6 +208,8 @@ public final class VClientImpl extends IVClient.Stub {
 
     private void InjectLibForStartPeriod(String packageName)
     {
+        //return;
+
         Log.d(LOG_TAG, "[start]Package Name:" + packageName);
         String libPath = getLibPathFromFile(VIRTUALAPP_PATH, "start", packageName);
         if (libPath != null)
@@ -212,10 +217,13 @@ public final class VClientImpl extends IVClient.Stub {
             Log.d(LOG_TAG,"loadLibrary:"+libPath);
             System.load(libPath);
         }
+
     }
 
     private void InjectLibForMiddlePeriod(String packageName)
     {
+        //return;
+
         Log.d(LOG_TAG, "[middle]Package Name:" + packageName);
         String libPath = getLibPathFromFile(VIRTUALAPP_PATH, "middle", packageName);
         if (libPath != null)
@@ -223,11 +231,16 @@ public final class VClientImpl extends IVClient.Stub {
             Log.d(LOG_TAG,"loadLibrary:"+libPath);
             System.load(libPath);
         }
+
     }
 
     private void bindApplicationNoCheck(String packageName, String processName, ConditionVariable lock) {
+        LogHelper.Debug("VClientImpl::bindApplicationNoCheck");
+        LogHelper.Debug("pkg name:" + packageName);
+        LogHelper.Debug("process name:" + processName);
         mTempLock = lock;
         try {
+            LogHelper.Debug("setup Uncaught Handler");
             setupUncaughtHandler();
         } catch (Throwable e) {
             e.printStackTrace();
@@ -249,15 +262,19 @@ public final class VClientImpl extends IVClient.Stub {
             System.exit(0);
         }
         if (!info.dependSystem && info.artFlyMode) {
+            LogHelper.Debug("ART init");
             ARTUtils.init(VirtualCore.get().getContext());
             ARTUtils.setIsDex2oatEnabled(false);
         }
         data.appInfo = VPackageManager.get().getApplicationInfo(packageName, 0, getUserId(vuid));
         data.processName = processName;
         data.providers = VPackageManager.get().queryContentProviders(processName, getVUid(), PackageManager.GET_META_DATA);
-        Log.i(TAG, "Binding application " + data.appInfo.packageName + " (" + data.processName + ")");
+        LogHelper.Debug("Binding application " + data.appInfo.packageName + " (" + data.processName + ")");
         mBoundApplication = data;
+
+        LogHelper.Debug("before setupRuntime");
         VirtualRuntime.setupRuntime(data.processName, data.appInfo);
+        LogHelper.Debug("after setupRuntime");
         int targetSdkVersion = data.appInfo.targetSdkVersion;
         if (targetSdkVersion < Build.VERSION_CODES.GINGERBREAD) {
             StrictMode.ThreadPolicy newPolicy = new StrictMode.ThreadPolicy.Builder(StrictMode.getThreadPolicy()).permitNetwork().build();
@@ -278,8 +295,11 @@ public final class VClientImpl extends IVClient.Stub {
         // Start Period
         InjectLibForStartPeriod(packageName);
 
+        LogHelper.Debug("NativeEngine hookNative");
         NativeEngine.hookNative();
+
         Object mainThread = VirtualCore.mainThread();
+
         NativeEngine.startDexOverride();
         Context context = createPackageContext(data.appInfo.packageName);
         System.setProperty("java.io.tmpdir", context.getCacheDir().getAbsolutePath());
@@ -316,10 +336,14 @@ public final class VClientImpl extends IVClient.Stub {
         if (!conflict) {
             InvocationStubManager.getInstance().checkEnv(AppInstrumentation.class);
         }
+        LogHelper.Debug("makeApplication");
         mInitialApplication = LoadedApk.makeApplication.call(data.info, false, null);
+        LogHelper.Debug("set mInitialApplication");
         mirror.android.app.ActivityThread.mInitialApplication.set(mainThread, mInitialApplication);
+        LogHelper.Debug("fixContext");
         ContextFixer.fixContext(mInitialApplication);
         if (data.providers != null) {
+            LogHelper.Debug("installContentProvider");
             installContentProviders(mInitialApplication, data.providers);
         }
         if (lock != null) {
@@ -327,6 +351,7 @@ public final class VClientImpl extends IVClient.Stub {
             mTempLock = null;
         }
         try {
+            LogHelper.Debug("callApplicationOnCreate");
             mInstrumentation.callApplicationOnCreate(mInitialApplication);
             InvocationStubManager.getInstance().checkEnv(HCallbackStub.class);
             if (conflict) {

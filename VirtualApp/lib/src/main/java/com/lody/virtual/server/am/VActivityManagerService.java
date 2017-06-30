@@ -62,6 +62,8 @@ import java.util.concurrent.atomic.AtomicReference;
 import static android.os.Process.killProcess;
 import static com.lody.virtual.os.VUserHandle.getUserId;
 
+import io.virtualapp.lib.utils.LogHelper;
+
 /**
  * @author Lody
  */
@@ -119,6 +121,7 @@ public class VActivityManagerService extends IActivityManager.Stub {
     @Override
     public int startActivity(Intent intent, ActivityInfo info, IBinder resultTo, Bundle options, String resultWho, int requestCode, int userId) {
         synchronized (this) {
+            LogHelper.Debug("VAMS::startActivity");
             return mMainStack.startActivityLocked(userId, intent, info, resultTo, options, resultWho, requestCode);
         }
     }
@@ -616,6 +619,8 @@ public class VActivityManagerService extends IActivityManager.Stub {
 
 
     private void attachClient(int pid, final IBinder clientBinder) {
+        LogHelper.Debug("VAMS::attachClient");
+        LogHelper.Debug("pid:" + pid);
         final IVClient client = IVClient.Stub.asInterface(clientBinder);
         if (client == null) {
             killProcess(pid);
@@ -686,10 +691,15 @@ public class VActivityManagerService extends IActivityManager.Stub {
     }
 
     ProcessRecord startProcessIfNeedLocked(String processName, int userId, String packageName) {
+        LogHelper.Debug("VAMS::startProcessIfNeedLocked");
         if (VActivityManagerService.get().getFreeStubCount() < 3) {
             // run GC
+            LogHelper.Debug("run GC freeStubCount < 3");
             killAllApps();
         }
+
+        LogHelper.Debug("process name:" + processName);
+        LogHelper.Debug("package name:" + packageName);
         PackageSetting ps = PackageCacheManager.getSetting(packageName);
         ApplicationInfo info = VPackageManagerService.get().getApplicationInfo(packageName, 0, userId);
         if (ps == null || info == null) {
@@ -706,6 +716,7 @@ public class VActivityManagerService extends IActivityManager.Stub {
             return app;
         }
         int vpid = queryFreeStubProcessLocked();
+        LogHelper.Debug("vpid:" + vpid);
         if (vpid == -1) {
             return null;
         }
@@ -737,12 +748,18 @@ public class VActivityManagerService extends IActivityManager.Stub {
     }
 
     private ProcessRecord performStartProcessLocked(int vuid, int vpid, ApplicationInfo info, String processName) {
+        LogHelper.Debug("VAMS::performStartProcessLocked");
         ProcessRecord app = new ProcessRecord(info, processName, vuid, vpid);
         Bundle extras = new Bundle();
         BundleCompat.putBinder(extras, "_VA_|_binder_", app);
         extras.putInt("_VA_|_vuid_", vuid);
         extras.putString("_VA_|_process_", processName);
         extras.putString("_VA_|_pkg_", info.packageName);
+
+        LogHelper.Debug("vuid:" + vuid);
+        LogHelper.Debug("vpid:" + vpid);
+        LogHelper.Debug("process:" + processName);
+        LogHelper.Debug("package:" + info.packageName);
         Bundle res = ProviderCall.call(StubManifest.getStubAuthority(vpid), "_VA_|_init_process_", null, extras);
         if (res == null) {
             return null;

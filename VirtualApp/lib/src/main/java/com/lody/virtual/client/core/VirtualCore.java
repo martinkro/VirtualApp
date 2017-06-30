@@ -45,6 +45,7 @@ import java.io.IOException;
 import java.util.List;
 
 import dalvik.system.DexFile;
+import io.virtualapp.lib.utils.LogHelper;
 import mirror.android.app.ActivityThread;
 
 /**
@@ -166,6 +167,7 @@ public final class VirtualCore {
 
 
     public void startup(Context context) throws Throwable {
+        LogHelper.Debug("VirtualCore::startup");
         if (!isStartUp) {
             if (Looper.myLooper() != Looper.getMainLooper()) {
                 throw new IllegalStateException("VirtualCore.startup() must called in main thread.");

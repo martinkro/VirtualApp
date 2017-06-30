@@ -34,6 +34,8 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_INSTANCE;
 import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TASK;
 import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
 
+import io.virtualapp.lib.utils.LogHelper;
+
 /**
  * @author Lody
  */
@@ -205,6 +207,7 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
 
 
     int startActivitiesLocked(int userId, Intent[] intents, ActivityInfo[] infos, String[] resolvedTypes, IBinder token, Bundle options) {
+        LogHelper.Debug("ActivityStack::startActivitiesLocked");
         optimizeTasksLocked();
         ReuseTarget reuseTarget = ReuseTarget.CURRENT;
         Intent intent = intents[0];
@@ -269,6 +272,8 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
 
     int startActivityLocked(int userId, Intent intent, ActivityInfo info, IBinder resultTo, Bundle options,
                             String resultWho, int requestCode) {
+
+        LogHelper.Debug("ActivityStack::startActivityLocked");
         optimizeTasksLocked();
 
         Intent destIntent;
@@ -279,10 +284,13 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
         ClearTarget clearTarget = ClearTarget.NOTHING;
         boolean clearTop = containFlags(intent, Intent.FLAG_ACTIVITY_CLEAR_TOP);
 
+        LogHelper.Debug("pkg name:" + info.packageName);
+        LogHelper.Debug("name:" + info.name);
         if (intent.getComponent() == null) {
             intent.setComponent(new ComponentName(info.packageName, info.name));
         }
         if (sourceRecord != null && sourceRecord.launchMode == LAUNCH_SINGLE_INSTANCE) {
+            LogHelper.Debug("add FLAG_ACTIVITY_NEW_TASK");
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         }
         if (clearTop) {
@@ -367,6 +375,7 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
 
         boolean taskMarked = false;
         if (reuseTask == null) {
+            LogHelper.Debug("startActivityInNewTaskLocked");
             startActivityInNewTaskLocked(userId, intent, info, options);
         } else {
             boolean delivered = false;
@@ -403,6 +412,9 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
     }
 
     private Intent startActivityInNewTaskLocked(int userId, Intent intent, ActivityInfo info, Bundle options) {
+        LogHelper.Debug("ActivityStack::startActivityInNewTaskLocked");
+        LogHelper.Debug("pkg name:" + info.packageName);
+        LogHelper.Debug("name:" + info.name);
         Intent destIntent = startActivityProcess(userId, null, intent, info);
         if (destIntent != null) {
             destIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -417,8 +429,10 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
             }
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                LogHelper.Debug("startActivity J");
                 VirtualCore.get().getContext().startActivity(destIntent, options);
             } else {
+                LogHelper.Debug("startActivity");
                 VirtualCore.get().getContext().startActivity(destIntent);
             }
         }
@@ -544,6 +558,7 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
     }
 
     private Intent startActivityProcess(int userId, ActivityRecord sourceRecord, Intent intent, ActivityInfo info) {
+        LogHelper.Debug("ActivityStack::startActivityProcess");
         intent = new Intent(intent);
         ProcessRecord targetApp = mService.startProcessIfNeedLocked(info.processName, userId, info.packageName);
         if (targetApp == null) {
@@ -559,6 +574,9 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
         StubActivityRecord saveInstance = new StubActivityRecord(intent, info,
                 sourceRecord != null ? sourceRecord.component : null, userId);
         saveInstance.saveToIntent(targetIntent);
+
+        LogHelper.Debug("create target intent:" + targetIntent.toString());
+
         return targetIntent;
     }
 

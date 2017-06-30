@@ -21,6 +21,7 @@ public class NativeMethods {
     public static Method gAudioRecordNativeCheckPermission;
 
     public static void init() {
+        // android 19
         String methodName =
                 Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT ? "openDexFileNative" : "openDexFile";
         for (Method method : DexFile.class.getDeclaredMethods()) {

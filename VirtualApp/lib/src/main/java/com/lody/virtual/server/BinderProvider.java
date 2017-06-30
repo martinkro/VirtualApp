@@ -25,6 +25,8 @@ import com.lody.virtual.server.pm.VPackageManagerService;
 import com.lody.virtual.server.pm.VUserManagerService;
 import com.lody.virtual.server.vs.VirtualStorageService;
 
+import io.virtualapp.lib.utils.LogHelper;
+
 /**
  * @author Lody
  */
@@ -34,6 +36,7 @@ public final class BinderProvider extends ContentProvider {
 
     @Override
     public boolean onCreate() {
+        LogHelper.Debug("BinderProvider::onCreate");
         Context context = getContext();
         DaemonService.startup(context);
         if (!VirtualCore.get().isStartup()) {
@@ -66,6 +69,8 @@ public final class BinderProvider extends ContentProvider {
 
     @Override
     public Bundle call(String method, String arg, Bundle extras) {
+        LogHelper.Debug("BinderProvider::call");
+        LogHelper.Debug("MethodName:" + method);
         if ("@".equals(method)) {
             Bundle bundle = new Bundle();
             BundleCompat.putBinder(bundle, "_VA_|_binder_", mServiceFetcher);

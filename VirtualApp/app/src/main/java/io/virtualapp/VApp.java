@@ -27,6 +27,7 @@ public class VApp extends Application {
 
     @Override
     protected void attachBaseContext(Context base) {
+        LogHelper.Debug("VApp::attachBaseContext");
         super.attachBaseContext(base);
         StubManifest.ENABLE_IO_REDIRECT = true;
         StubManifest.ENABLE_INNER_SHORTCUT = false;
@@ -35,10 +36,12 @@ public class VApp extends Application {
         } catch (Throwable e) {
             e.printStackTrace();
         }
+        LogHelper.Debug("VApp::attachBaseContext END!");
     }
 
     @Override
     public void onCreate() {
+        LogHelper.Debug("VApp::onCreate");
         gApp = this;
         super.onCreate();
         VirtualCore virtualCore = VirtualCore.get();
@@ -47,16 +50,19 @@ public class VApp extends Application {
             @Override
             public void onMainProcess() {
                 Once.initialise(VApp.this);
+
                 new FlurryAgent.Builder()
                         .withLogEnabled(true)
                         .withListener(() -> {
                             // nothing
                         })
                         .build(VApp.this, "48RJJP7ZCZZBB6KMMWW5");
+
             }
 
             @Override
             public void onVirtualProcess() {
+                LogHelper.Debug("onVirtualProcess");
                 //listener components
                 virtualCore.setComponentDelegate(new MyComponentDelegate());
                 //fake phone imei,macAddress,BluetoothAddress
@@ -67,6 +73,7 @@ public class VApp extends Application {
 
             @Override
             public void onServerProcess() {
+                LogHelper.Debug("onServerProcess");
                 virtualCore.setAppRequestListener(new MyAppRequestListener(VApp.this));
                 virtualCore.addVisibleOutsidePackage("com.tencent.mobileqq");
                 virtualCore.addVisibleOutsidePackage("com.tencent.mobileqqi");

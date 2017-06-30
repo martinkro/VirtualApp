@@ -12,6 +12,8 @@ import com.lody.virtual.client.ipc.VActivityManager;
 import com.lody.virtual.os.VUserHandle;
 import com.lody.virtual.remote.StubActivityRecord;
 
+import io.virtualapp.lib.utils.LogHelper;
+
 /**
  * @author Lody
  *
@@ -28,13 +30,16 @@ public abstract class StubActivity extends Activity {
         // Try to acquire the actually component information.
 		StubActivityRecord r = new StubActivityRecord(stubIntent);
 		if (r.intent != null) {
+			LogHelper.Debug("StubActivity::onCreate");
 			if (TextUtils.equals(r.info.processName, VirtualRuntime.getProcessName()) && r.userId == VUserHandle.myUserId()) {
                 // Retry to inject the HCallback to instead of the exist one.
+				LogHelper.Debug("Retry to inject the HCallback to instead of the exist one");
 				InvocationStubManager.getInstance().checkEnv(HCallbackStub.class);
 				Intent intent = r.intent;
 				startActivity(intent);
 			} else {
                 // Start the target Activity in other process.
+				LogHelper.Debug("Start the target Activity in other process");
 				VActivityManager.get().startActivity(r.intent, r.userId);
 			}
 		}

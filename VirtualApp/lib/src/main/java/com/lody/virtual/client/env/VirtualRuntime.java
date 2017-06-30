@@ -13,6 +13,8 @@ import com.lody.virtual.helper.utils.VLog;
 import mirror.android.ddm.DdmHandleAppName;
 import mirror.android.ddm.DdmHandleAppNameJBMR1;
 
+import io.virtualapp.lib.utils.LogHelper;
+
 /**
  * @author Lody
  *         <p>
@@ -44,10 +46,14 @@ public class VirtualRuntime {
         }
         sInitialPackageName = appInfo.packageName;
         sProcessName = processName;
+        LogHelper.Debug("set process name:" + processName);
         mirror.android.os.Process.setArgV0.call(processName);
+        // 17
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+            LogHelper.Debug("set app name J:" + processName);
             DdmHandleAppNameJBMR1.setAppName.call(processName, 0);
         } else {
+            LogHelper.Debug("set app name:" + processName);
             DdmHandleAppName.setAppName.call(processName);
         }
     }

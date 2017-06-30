@@ -13,6 +13,8 @@ import com.lody.virtual.client.VClientImpl;
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.helper.compat.BundleCompat;
 
+import io.virtualapp.lib.utils.LogHelper;
+
 /**
  * @author Lody
  *
@@ -33,6 +35,9 @@ public class StubContentProvider extends ContentProvider {
 	}
 
 	private Bundle initProcess(Bundle extras) {
+		LogHelper.Debug("StubContentProvider::initProcess");
+		LogHelper.Debug("bundle:" + extras.toString());
+
 		ConditionVariable lock = VirtualCore.get().getInitLock();
 		if (lock != null) {
 			lock.block();
@@ -44,6 +49,9 @@ public class StubContentProvider extends ContentProvider {
 		Bundle res = new Bundle();
 		BundleCompat.putBinder(res, "_VA_|_client_", client.asBinder());
 		res.putInt("_VA_|_pid_", Process.myPid());
+
+		LogHelper.Debug("pid:" + Process.myPid());
+
 		return res;
 	}
 

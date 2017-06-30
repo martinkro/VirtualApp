@@ -51,6 +51,7 @@ public class ActivityManagerStub extends MethodInvocationProxy<MethodInvocationS
             Object singleton = ActivityManagerOreo.IActivityManagerSingleton.get();
             Singleton.mInstance.set(singleton, getInvocationStub().getProxyInterface());
         } else {
+            // 替换gDefault
             if (ActivityManagerNative.gDefault.type() == IActivityManager.TYPE) {
                 ActivityManagerNative.gDefault.set(getInvocationStub().getProxyInterface());
             } else if (ActivityManagerNative.gDefault.type() == Singleton.TYPE) {
