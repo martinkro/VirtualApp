@@ -1,6 +1,7 @@
 package com.lody.virtual.client.hook.base;
 
 import java.lang.reflect.Method;
+import io.virtualapp.lib.utils.LogHelper;
 
 /**
  * @author Lody
@@ -21,6 +22,7 @@ public class ResultStaticMethodProxy extends StaticMethodProxy {
 
 	@Override
 	public Object call(Object who, Method method, Object... args) throws Throwable {
+		LogHelper.Debug("ResultStaticMethodProxy method name:" + getMethodName());
 		return mResult;
 	}
 }

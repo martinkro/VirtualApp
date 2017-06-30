@@ -17,6 +17,8 @@ import mirror.android.app.ContextImpl;
 import mirror.android.app.ContextImplKitkat;
 import mirror.android.content.ContentResolverJBMR2;
 
+import io.virtualapp.lib.utils.LogHelper;
+
 /**
  * @author Lody
  */
@@ -30,6 +32,7 @@ public class ContextFixer {
      * @param context Context
      */
     public static void fixContext(Context context) {
+        LogHelper.Debug("ContextFixer::fixContext");
         try {
             context.getPackageName();
         } catch (Throwable e) {
@@ -51,18 +54,22 @@ public class ContextFixer {
             e.printStackTrace();
         }
         if (!VirtualCore.get().isVAppProcess()) {
+            LogHelper.Debug("Current App is not VAppProcess");
             return;
         }
         DropBoxManager dm = (DropBoxManager) context.getSystemService(Context.DROPBOX_SERVICE);
         BinderInvocationStub boxBinder = InvocationStubManager.getInstance().getInvocationStub(DropBoxManagerStub.class);
         if (boxBinder != null) {
             try {
+                // DropBoxManager
+                LogHelper.Debug("Replace DropBoxManager::mService");
                 Reflect.on(dm).set("mService", boxBinder.getProxyInterface());
             } catch (ReflectException e) {
                 e.printStackTrace();
             }
         }
         String hostPkg = VirtualCore.get().getHostPkg();
+        LogHelper.Debug("host pkg:" + hostPkg);
         ContextImpl.mBasePackageName.set(context, hostPkg);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             ContextImplKitkat.mOpPackageName.set(context, hostPkg);

@@ -71,7 +71,7 @@ public class ActivityManagerStub extends MethodInvocationProxy<MethodInvocationS
             addMethodProxy(new ReplaceLastUidMethodProxy("checkPermissionWithToken"));
             addMethodProxy(new isUserRunning());
             addMethodProxy(new ResultStaticMethodProxy("updateConfiguration", 0));
-            addMethodProxy(new ReplaceCallingPkgMethodProxy("setAppLockedVerifying"));
+            addMethodProxy(new ReplaceCallingPkgMethodProxy("setAppLockedVerifying"));   // NOT Found
             addMethodProxy(new StaticMethodProxy("checkUriPermission") {
                 @Override
                 public Object afterCall(Object who, Method method, Object[] args, Object result) throws Throwable {
@@ -102,7 +102,7 @@ public class ActivityManagerStub extends MethodInvocationProxy<MethodInvocationS
                     return _infos;
                 }
             });
-        }
+        }  // end of isVAppProcess()
     }
 
     @Override
