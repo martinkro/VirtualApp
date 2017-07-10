@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout 
+    android:layout_width="fill_parent" 
+    android:layout_height="fill_parent"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+    <TextView 
+        android:textSize="35.0sp" 
+        android:textColor="@android:color/white" 
+        android:layout_gravity="center|top" 
+        android:id="@+id/text_error" 
+        android:visibility="invisible" 
+        android:layout_width="wrap_content" 
+        android:layout_height="wrap_content" 
+        android:layout_marginTop="100.0dip" 
+        android:text="@string/invalid_license_key" />
+    <TextView 
+        android:textSize="35.0sp" 
+        android:textColor="@android:color/white" 
+        android:layout_gravity="center|top" 
+        android:id="@+id/text_tips" 
+        android:visibility="invisible" 
+        android:layout_width="wrap_content" 
+        android:layout_height="wrap_content" 
+        android:layout_marginTop="150.0dip" 
+        android:text="@string/wait_a_moment" />
+    <EditText 
+        android:textSize="28.0sp" 
+        android:textColor="@android:color/white" 
+        android:layout_gravity="center|top" 
+        android:id="@+id/edit_key" 
+        android:layout_width="380.0dip" 
+        android:layout_height="wrap_content" 
+        android:layout_marginTop="200.0dip" 
+        android:hint="@string/login_tips" />
+    <Button 
+        android:textSize="28.0sp" 
+        android:textColor="@android:color/white" 
+        android:layout_gravity="center|top" 
+        android:id="@+id/btn_Confirm" 
+        android:background="@drawable/button_skin" 
+        android:layout_width="160.0dip" 
+        android:layout_height="wrap_content" 
+        android:layout_marginTop="320.0dip" 
+        android:text="@string/login_btn_login" />
+</FrameLayout>
