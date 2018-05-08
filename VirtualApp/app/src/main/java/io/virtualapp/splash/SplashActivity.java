@@ -41,7 +41,7 @@ public class SplashActivity extends VActivity {
             VirtualCore.get().waitForEngine();
             LogHelper.Debug("waitForEngine end");
 
-            isPaseTimeCheck = LoginActivity.CheckTime();
+            //isPaseTimeCheck = LoginActivity.CheckTime();
             time = System.currentTimeMillis() - time;
             long delta = 1000L - time;
             if (delta > 0) {
@@ -50,10 +50,10 @@ public class SplashActivity extends VActivity {
         }).done((res) -> {
             if (isPaseTimeCheck)
             {
-                startActivity(new Intent(this,LoginActivity.class));
+                //startActivity(new Intent(this,LoginActivity.class));
             }
-            //HomeActivity.goHome(this);
-            //finish();
+            HomeActivity.goHome(this);
+            finish();
         });
     }
 

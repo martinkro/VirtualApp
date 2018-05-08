@@ -3,7 +3,9 @@ package io.virtualapp.login;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
+import android.util.StringBuilderPrinter;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
@@ -12,10 +14,13 @@ import android.widget.TextView;
 
 import com.lody.virtual.client.NativeEngine;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
@@ -56,7 +61,41 @@ public class LoginActivity extends VActivity implements View.OnClickListener{
         }
         public void run()
         {
-
+            HttpURLConnection connection = null;
+            try
+            {
+                connection = (HttpURLConnection)new URL("http://qingmu.jaxmz.cn/Auth.php" + mAuthID).openConnection();
+                connection.setRequestMethod("GET");
+                connection.setConnectTimeout(8000);
+                connection.setReadTimeout(9000);
+                BufferedReader buf = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+                StringBuilder response = new StringBuilder();
+                while(true)
+                {
+                    String line = buf.readLine();
+                    if (line == null) break;
+                    response.append(line);
+                }
+                Message msg = new Message();
+                msg.what = 0;
+                msg.obj = response.toString();
+                handler.sendMessage(msg);
+                if (connection != null)
+                {
+                    connection.disconnect();
+                }
+            }
+            catch(Exception e)
+            {
+                e.printStackTrace();
+                if (connection!= null){
+                    connection.disconnect();
+                }
+            }
+            catch(Throwable th)
+            {
+                if(connection != null) connection.disconnect();
+            }
         }
     }
 
@@ -135,7 +174,7 @@ public class LoginActivity extends VActivity implements View.OnClickListener{
     }
     private void sendRequestWithHttpURLConnection(String arg)
     {
-
+        new Thread(new URLRequestThread(arg)).start();
     }
     private void writeFileToSDCard(String data)
     {
@@ -148,7 +187,7 @@ public class LoginActivity extends VActivity implements View.OnClickListener{
                 if (strReslut.indexOf("ERROR") == -1 && strReslut.indexOf("OK|") != -1) {
                     String[] strArray = strReslut.split("\\|");
                     ExpirationTime = Long.parseLong(strArray[1]);
-                    WriteFile(FILENAME_UserData, NativeEngine.getOutPut(strArray[3]).getBytes());
+                    // WriteFile(FILENAME_UserData, NativeEngine.getOutPut(strArray[3]).getBytes());
                     UserLicenseKey = this.edit_key.getText().toString();
                     WriteLinGameAddonLicenseKeys();
                     ShowHomeActivity();
@@ -165,10 +204,10 @@ public class LoginActivity extends VActivity implements View.OnClickListener{
                 return;
             }
         }
-        this.text_error.setVisibility(0);
-        this.text_tips.setVisibility(4);
-        this.btn_Confirm.setVisibility(0);
-        this.edit_key.setVisibility(0);
+        this.text_error.setVisibility(View.VISIBLE);
+        this.text_tips.setVisibility(View.INVISIBLE);
+        this.btn_Confirm.setVisibility(View.VISIBLE);
+        this.edit_key.setVisibility(View.VISIBLE);
         TryDeleteLicenseFile(FILENAME_LicenseKey);
 
     }
@@ -246,6 +285,8 @@ public class LoginActivity extends VActivity implements View.OnClickListener{
     }
     public static boolean CheckTime()
     {
+        return true;
+        /*
         MalformedURLException e;
         URL url;
         IOException e2;
@@ -282,7 +323,7 @@ public class LoginActivity extends VActivity implements View.OnClickListener{
             e2.printStackTrace();
             return false;
         }
-
+        */
         //return true;
     }
     public static void WriteLinGameAddonLicenseKeys()
