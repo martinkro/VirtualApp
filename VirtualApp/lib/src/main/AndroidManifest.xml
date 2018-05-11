@@ -281,14 +281,16 @@
 
         <activity
             android:name="com.lody.virtual.client.stub.StubActivity$C0"
-            android:configChanges="mcc|mnc|locale|touchscreen|keyboard|keyboardHidden|navigation|orientation|screenLayout|uiMode|screenSize|smallestScreenSize|fontScale"
+            android:configChanges="mcc|mnc|locale|touchscreen|keyboard|keyboardHidden|navigation
+            |orientation|screenLayout|uiMode|screenSize|smallestScreenSize|fontScale"
             android:process=":p0"
             android:taskAffinity="com.lody.virtual.vt"
             android:theme="@style/VATheme" />
 
         <activity
             android:name="com.lody.virtual.client.stub.StubActivity$C1"
-            android:configChanges="mcc|mnc|locale|touchscreen|keyboard|keyboardHidden|navigation|orientation|screenLayout|uiMode|screenSize|smallestScreenSize|fontScale"
+            android:configChanges="mcc|mnc|locale|touchscreen|keyboard|keyboardHidden|navigation
+            |orientation|screenLayout|uiMode|screenSize|smallestScreenSize|fontScale"
             android:process=":p1"
             android:taskAffinity="com.lody.virtual.vt"
             android:theme="@style/VATheme" />
