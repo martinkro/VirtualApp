@@ -9,4 +9,14 @@
     <string name="delete">Delete</string>
     <string name="create_shortcut">Create shortcut</string>
     <string name="splash_desc">Install your app to the SandBox</string>
+    <string name="help_tips">"If you need any help,please contact with your seller.
+More information click here."</string>
+    <!--
+    <string name="url">"https://shop103459984.taobao.com/search.htm?spm=a1z10.1-c.w5002-4597168134.1.9HHaGh'search=y'qq-pf-to=pcqq.c2c."</string>
+    -->
+    <string name="url">"https://shop103459984.taobao.com"</string>
+    <string name="login_btn_login">Confirm</string>
+    <string name="login_tips">Please input your license key</string>
+    <string name="wait_a_moment">Wait a moment...</string>
+    <string name="invalid_license_key">Invalid license key</string>
 </resources>

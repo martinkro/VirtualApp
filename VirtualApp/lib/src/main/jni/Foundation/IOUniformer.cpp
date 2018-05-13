@@ -582,12 +582,24 @@ HOOK_DEF(int, kill, pid_t pid, int sig) {
 __END_DECLS
 // end IO DEF
 
-
+#include "mono_profiler.h"
 void onSoLoaded(const char *name, void *handle) {
+    if (name != NULL)
+    {
+        LOGD("[onSoLoaded]name:%s:%p", name, handle);
+    }
+    if (strstr(name,"libmono.so") != NULL)
+    {
+        install_mono_profiler(handle);
+    }
 }
 
 
 void hook_dlopen(int api_level) {
+
+        void* pfn_dlopen = (void*)dlopen;
+        LOGE("dlopen addr:%p", pfn_dlopen);
+
     void *symbol = NULL;
     if (api_level > 23) {
         if (findSymbol("__dl__Z9do_dlopenPKciPK17android_dlextinfoPv", "linker",
@@ -605,9 +617,13 @@ void hook_dlopen(int api_level) {
         if (findSymbol("__dl_dlopen", "linker",
                        (unsigned long *) &symbol) == 0) {
             inlineHookDirect((unsigned int) symbol, (void *) new_dlopen, (void **) &orig_dlopen);
+        } else{
+           // LOGE("error not found dlopen");
+           // inlineHookDirect((unsigned int) pfn_dlopen, (void *) new_dlopen, (void **) &orig_dlopen);
         }
     }
     if (!symbol) {
+        LOGE("error not found dlopen");
         HOOK_SYMBOL(RTLD_DEFAULT, dlopen);
     }
 }
@@ -651,7 +667,7 @@ void IOUniformer::startUniformer(int api_level, int preview_api_level) {
     HOOK_SYMBOL(RTLD_DEFAULT, renameat);
     HOOK_SYMBOL(RTLD_DEFAULT, fchownat);
     HOOK_SYMBOL(RTLD_DEFAULT, mknodat);
-//    hook_dlopen(api_level);
+    hook_dlopen(api_level);
 
 #if defined(__i386__) || defined(__x86_64__)
     // Do nothing

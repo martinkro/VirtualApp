@@ -18,6 +18,9 @@
             </intent-filter>
         </activity>
 
+        <activity android:name="io.virtualapp.login.LoginActivity" android:theme="@style/UITheme"/>
+        <activity android:name="io.virtualapp.login.HelpActivity"/>
+
         <activity
             android:name=".home.HomeActivity"
             android:theme="@style/UITheme" />

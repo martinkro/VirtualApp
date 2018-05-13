@@ -58,6 +58,8 @@ endif
 LOCAL_SRC_FILES := Core.cpp \
 				   Foundation/IOUniformer.cpp \
 				   Foundation/VMPatch.cpp \
+				   Foundation/mono_profiler.cpp \
+				   utils/log.cpp \
 				   $(ARCH_FILES) \
 
 

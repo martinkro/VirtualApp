@@ -172,7 +172,10 @@ public final class VirtualCore {
             if (Looper.myLooper() != Looper.getMainLooper()) {
                 throw new IllegalStateException("VirtualCore.startup() must called in main thread.");
             }
+            // io.virutalapp.virtual_stub_
             StubManifest.STUB_CP_AUTHORITY = context.getPackageName() + "." + StubManifest.STUB_DEF_AUTHORITY;
+
+            // io.virutalapp.virtual.service.BinderProvider
             ServiceManagerNative.SERVICE_CP_AUTH = context.getPackageName() + "." + ServiceManagerNative.SERVICE_DEF_AUTH;
             this.context = context;
             mainThread = ActivityThread.currentActivityThread.call();
